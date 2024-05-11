@@ -6,9 +6,10 @@
     <title>Mandal Management System</title>
     <style>
         body {
-            background-image: url('https://source.unsplash.com/random');
-            background-size: cover;
-            background-position: center;
+            background-color:#000;
+                   background-image: url('https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MTU0MzI1OTl8&ixlib=rb-4.0.3&q=80&w=400');
+          background-size:cover;  
+          background-position: center;
         }
         #myDialog {
             position: fixed;
@@ -19,6 +20,7 @@
             height: 100%;
             overflow: auto;
             background-color: rgba(0,0,0,0.4);
+ 
             display: none;
             justify-content: center;
             align-items: center;
@@ -29,6 +31,9 @@
             border-radius: 15px;
             max-width: 80%;
             text-align: center;
+                   background-image: url('https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MTU0MzI1OTl8&ixlib=rb-4.0.3&q=80&w=400');
+          background-size:cover;
+          background-position:right;
         }
         .mandal-button {
             padding: 10px 20px;
@@ -62,12 +67,18 @@
         }
         .existing-mandal {
             padding: 50px;
-          width:fit-content;
+            width: fit-content;
             margin-top: 20px;
             background-color: lightgray;
             border-radius: 5px;
             display: none;
         }
+      .mandal-heading{
+        color:#fff
+      }
+      .close{
+        color:#fff
+      }
     </style>
 </head>
 <body>
@@ -109,7 +120,6 @@
 
         function openDialog() {
             document.getElementById("myDialog").style.display = "flex";
-            document.getElementById("mandalForm").classList.remove('hidden');
         }
 
         function closeDialog() {
@@ -134,9 +144,9 @@
             let mandals = JSON.parse(localStorage.getItem('mandalProgress')) || [];
             mandals.push(mandal);
             localStorage.setItem('mandalProgress', JSON.stringify(mandals));
-            localStorage.setItem('username', userName); // Save the user's name separately if needed
+            localStorage.setItem('username', userName);
 
-            updateHeader(mandalName); 
+            updateHeader(mandalName);
             checkAndDisplayExistingMandal();
             showToast(`Mandal created successfully! It starts on ${startDate.toDateString()} and ends on ${endDate.toDateString()}.`);
             closeDialog();
@@ -144,7 +154,7 @@
 
         function updateHeader(name) {
             const header = document.querySelector('.mandal-heading h1');
-            header.textContent = `Mandal: ${name}`;
+            header.textContent = `${name}`;
         }
 
         function showToast(message) {
@@ -161,72 +171,33 @@
         function checkAndDisplayExistingMandal() {
             const username = localStorage.getItem('username');
             const mandals = JSON.parse(localStorage.getItem('mandalProgress'));
-            const meditationHistory = JSON.parse(localStorage.getItem('meditationHistory'));
 
             if (username && mandals && mandals.length > 0) {
                 const lastMandal = mandals[mandals.length - 1];
-                const mandalDaysCompleted = (meditationHistory && meditationHistory[lastMandal.name]) ? meditationHistory[lastMandal.name].length : 0;
-                const remainingDays = lastMandal.duration - mandalDaysCompleted;
-                
+                const startDate = new Date(lastMandal.creationDate);
+                const endDate = new Date(lastMandal.endDate);
+                const currentDate = new Date();
+
+                const daysCompleted = Math.floor((Math.min(currentDate, endDate) - startDate) / (1000 * 60 * 60 * 24));
+                const remainingDays = Math.max(0, Math.ceil((endDate - currentDate) / (1000 * 60 * 60 * 24)));
+
                 const existingMandalCard = document.getElementById('existingMandalCard');
                 existingMandalCard.innerHTML = `
-                    <h3>Existing Mandal Found</h3>
+                    <h2>Existing Mandal Found</h2>
                     <p>Username: ${username}</p>
                     <p>Mandal Name: ${lastMandal.name}</p>
-                    <p>Start Date: ${lastMandal.creationDate}</p>
-                    <p>End Date: ${lastMandal.endDate}</p>
-                    <p>Days Completed: ${mandalDaysCompleted}</p>
+                    <p>Start Date: ${startDate.toDateString()}</p>
+                    <p>End Date: ${endDate.toDateString()}</p>
+                    <p>Days Completed: ${daysCompleted}</p>
                     <p>${remainingDays > 0 ? `Remaining Days: ${remainingDays}` : "Mandal Completed. You can create a new one."}</p>
+                    <a href="${sessionCreationUrl}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" target="_blank">Start Creating Meditation Sessions in ${lastMandal.name}</a>
                 `;
                 existingMandalCard.style.display = 'block';
+                updateHeader(lastMandal.name);
+            } else {
+                showToast("No existing Mandal found. Please create one by clicking Mandal creation button.");
             }
         }
-      function checkAndDisplayExistingMandal() {
-    const username = localStorage.getItem('username');
-    const mandals = JSON.parse(localStorage.getItem('mandalProgress'));
-
-    if (username && mandals && mandals.length > 0) {
-        const lastMandal = mandals[mandals.length - 1];
-        const startDate = new Date(lastMandal.creationDate);
-        const endDate = new Date(lastMandal.endDate);
-        const currentDate = new Date();
-
-        // Calculate days completed and remaining days
-        const daysCompleted = Math.floor((Math.min(currentDate, endDate) - startDate) / (1000 * 60 * 60 * 24));
-        const remainingDays = Math.max(0, Math.ceil((endDate - currentDate) / (1000 * 60 * 60 * 24)));
-
-        const existingMandalCard = document.getElementById('existingMandalCard');
-        existingMandalCard.innerHTML = `
-            <h3>Existing Mandal Found</h3>
-            <p>Username: ${username}</p>
-            <p>Mandal Name: ${lastMandal.name}</p>
-            <p>Start Date: ${startDate.toDateString()}</p>
-            <p>End Date: ${endDate.toDateString()}</p>
-            <p>Days Completed: ${daysCompleted}</p>
-            <p>${remainingDays > 0 ? `Remaining Days: ${remainingDays}` : "Mandal Completed. You can create a new one."}</p>
-        `;
-        existingMandalCard.style.display = 'block';
-        updateHeader(lastMandal.name); // Ensure the header is updated with the current Mandal name
-    } else {
-        showToast("No existing Mandal found. Please create one by selecting a card.");
-    }
-}
-
-function updateHeader(name) {
-    const header = document.querySelector('.mandal-heading h1');
-    header.textContent = `Mandal: ${name}`;
-}
-
-function showToast(message) {
-    const toastContainer = document.getElementById('toastContainer');
-    const toastMessage = document.getElementById('toastMessage');
-    toastMessage.innerHTML = message;
-    toastContainer.style.display = 'block';
-    setTimeout(() => {
-        toastContainer.style.display = 'none';
-    }, 5000);
-}
-
     </script>
 </body>
 </html>
