@@ -3,201 +3,745 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mandal Management System</title>
+    <title>Mandala Timer</title>
     <style>
+        /* Global body styles */
         body {
-            background-color:#000;
-                   background-image: url('https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MTU0MzI1OTl8&ixlib=rb-4.0.3&q=80&w=400');
-          background-size:cover;  
-          background-position: center;
+            box-sizing: border-box;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 0;
+            background-image: url('https://images.unsplash.com/photo-1526779259212-939e64788e3c?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MTMyNDY1NjV8&ixlib=rb-4.0.3&q=85');
+            background-size: cover;
+            background-repeat: no-repeat;
         }
-        #myDialog {
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
- 
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-        .dialog-content {
-            background-color: #fefefe;
+
+        header {
             padding: 20px;
-            border-radius: 15px;
-            max-width: 80%;
-            text-align: center;
-                   background-image: url('https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MTU0MzI1OTl8&ixlib=rb-4.0.3&q=80&w=400');
-          background-size:cover;
-          background-position:right;
+            margin-bottom: 20px;
+            background-color: #dddddd6e;
+            width: 100vw;
+            filter: brightness(0.5);
+            box-shadow: inset -7px -2px 0px 20px #dddddd6e;
         }
-        .mandal-button {
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 4px;
+            place-content: center;
+            height: 100vh;
+            overflow: scroll;
+            margin-bottom: 100px;
+            text-align: center;
+            padding-left: 50px;
+        }
+
+        .card {
+            height: fit-content;
+            background-color: #fffff6e;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-image: url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%239C92AC" fill-opacity="0.4" fill-rule="evenodd"%3E%3Cpath d="M0 40L40 0H20L0 20M40 40V20L20 40"/%3E%3C/g%3E%3C/svg%3E');
+        }
+
+        .timer {
+            font-size: 7rem;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .history-section {
+            background-color: #ffffff6e;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            overflow-y: auto;
+        }
+
+        button {
             padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
+            background-color: #007BFF;
+            color: #fff;
             cursor: pointer;
+            width: 100%;
         }
-        .close, .toast-close {
-            color: #000;
-            float: right;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
+
+        button:hover {
+            background-color: #0056b3;
         }
-        .toast-container {
+
+        .intrusive-toast {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            display: none; /* Initially hidden */
-        }
-        .toast {
-            padding: 10px 20px;
-            background-color: #333;
-            color: white;
+            width: fit-content;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #ccc;
             border-radius: 5px;
+            box-shadow: 7px 7px 13px 3px #0f0f0e78;
+        }
+
+        #toast, #timerDisplay {
+            position: fixed;
+            width: fit-content;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .dialog {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('https://images.unsplash.com/photo-1542417938-a39dba3afeb4?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MTM3NzI3NjN8&ixlib=rb-4.0.3&q=85');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 9999;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .close {
+            color: red;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .content {
+            display: none;
+        }
+
+        .intro {
+            font-size: 0.8rem;
+        }
+
+        #mandalOngoing {
+            text-transform: uppercase;
             text-align: center;
+        }
+
+        .user-name-input {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .close-icon {
+            position: absolute;
+            top: 3px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        .history-section {
+            background-image: url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%239C92AC" fill-opacity="0.4" fill-rule="evenodd"%3E%3Cpath d="M0 40L40 0H20L0 20M40 40V20L20 40"/%3E%3C/g%3E%3C/svg%3E');
+            height: -webkit-fill-available;
+            overflow-y: scroll;
+        }
+
+        .history-section h3 {
+            border: 0.5pt solid;
+            background-color: #9b5de5;
+            border-radius: 5px;
+            padding: 10px;
+            width: fit-content;
+        }
+
+        .medHlog {
+            border-bottom: 0.5pt solid aqua;
+            padding: 15px;
+            margin-bottom: 5px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            width: fill-content;
             position: relative;
         }
-        .existing-mandal {
-            padding: 50px;
-            width: fit-content;
-            margin-top: 20px;
-            background-color: lightgray;
-            border-radius: 5px;
-            display: none;
+
+        .medHlog:hover {
+            background-color: #f4f4f4;
         }
-      .mandal-heading{
-        color:#fff
-      }
-      .close{
-        color:#fff
-      }
+
+        .start {
+            background-color: green;
+            width: fit-content;
+        }
+
+        .stop {
+            background-color: red;
+            width: fit-content;
+            margin-left: 5px;
+        }
+
+        .clos {
+            width: fit-content;
+            margin-left: 5px;
+        }
+
+        .close-icon {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            cursor: pointer;
+            color: red;
+        }
+
+        button {
+            background-color: #9b5de5;
+        }
+
+        body {
+            font-family: "Merriweather", serif;
+        }
+
+        h1, h2, h3 {
+            font-weight: bold;
+        }
+
+        .card {
+            background-image: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+        }
+
+        body.dark-theme {
+            background-color: #212529;
+            color: #f8f9fa;
+        }
+
+        body.dark-theme .card {
+            background-image: linear-gradient(to bottom right, #343a40, #212529);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .exists {
+            color: #fff;
+        }
+
+        .session-notes {
+            outline: none;
+            border: 1px solid transparent;
+            padding: 5px;
+            width: 100%;
+            position: relative;
+        }
+
+        .session-notes:hover {
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .formatting-dialog {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            color: #ccc;
+            width: fit-content;
+        }
+
+        .progress-bar {
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+            height: 20px;
+            width: 100%;
+        }
+
+        .progress {
+            background-color: #76c7c0;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .ellipsis {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            color: white;
+            background-color: #333;
+            padding: 2px 5px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
-    <div class="grid-container">
-        <div class="mandal-heading"><h1>Mandal Name Here</h1></div>
-        <div id="existingMandalCard" class="existing-mandal"></div>
-        <div class="card">
-            <div class="button-container">
-                <button class="mandal-button" onclick="openDialog()">Mandal Creation</button>
-            </div>
-            <div id="myDialog" class="dialog" aria-labelledby="myDialogTitle" aria-hidden="true">
-                <div class="dialog-content">
-                    <span class="close" onclick="closeDialog()">ⓧ</span>
-                    <form id="mandalForm">
-                        <input type="text" id="userName" placeholder="Your Name">
-                        <input type="text" id="mandalName" placeholder="Mandal Focus or Intention">
+<header>
+    <h1 id="mandalOngoing">[mandal name here]</h1>
+</header>
+
+<div class="grid-container">
+    <div class="card">
+        <h2></h2>
+        <p></p>
+        <button class="mandal-button" onclick="openDialog()">Mandal Button</button>
+
+        <div id="myDialog" class="dialog">
+            <div class="dialog-content">
+                <button class="close" onclick="closeDialog()">closeⓧ</button>
+                <main>
+                    <section id="mandalCreation">
+                        <button id="createMandal" onclick="checkLocalStorage()">Create New Mandal</button>
+                    </section>
+                    <div id="intrusiveToast" class="hidden">
+                        <h2>Create a New Mandal</h2>
+                        <input type="text" id="mandalName" placeholder="Mandal Focus or Intention" required>
+                        <select id="mandalDuration" required>
+                            <option value="48">48 days (96 sessions)</option>
+                            <option value="90">90 days (1 session/day)</option>
+                        </select>
                         <input type="date" id="startDate" placeholder="Start Date">
+                        <button onclick="saveMandal()">Save Mandal</button>
+                    </div>
+                    <div id="toastNotification" class="hidden">
+                        <p id="toastMessage"></p>
+                    </div>
+                    <div id="mandalForm" class="hidden">
+                        <input type="text" id="mandalName" placeholder="Mandal Focus or Intention">
                         <select id="mandalDuration">
                             <option value="48">48 days (96 sessions)</option>
                             <option value="90">90 days (1 session/day)</option>
                         </select>
-                        <button type="button" onclick="saveMandal()">Save Mandal</button>
-                    </form>
-                </div>
+                        <button id="saveMandal">Save Mandal</button>
+                    </div>
+                    <div id="toastNotification" class="hidden">
+                        <p id="toastMessage"></p>
+                    </div>
+
+                    <div class="exists">
+                        <h3>This Already Exists</h3><sup>Kindly!, Let ongoing Mandal finish first! thanks</sup>
+                    </div>
+                    <section id="sessionTracking">
+                        <button id="startSession" class="hidden">Start Session</button>
+                        <div id="timerDisplay" class="hidden">13:00</div>
+                    </section>
+                </main>
             </div>
         </div>
     </div>
-    <div id="toastContainer" class="toast-container">
-        <div id="toastMessage" class="toast">
-            <span class="toast-close" onclick="hideToast()">×</span>
+
+    <div class="card">
+        <h2 id="mandalaName"></h2>
+        <p class="day-count"></p>
+        <p id="mandalDetails"></p>
+        <button id="createSession">Create a Meditation Session</button>
+        <div class="progress-bar">
+            <div class="progress" id="progressBar"></div>
         </div>
     </div>
-    <script>
-        var sessionCreationUrl = "https://anandvip.github.io/mandalapp-2/";  // Placeholder URL
 
-        window.addEventListener('load', function() {
-            checkAndDisplayExistingMandal();
+    <div class="history-section">
+        <div class="collapsible" onclick="toggleCollapsible('meditationHistory')">
+            <h3>Your Meditation History</h3>
+        </div>
+        <span class="intro">Here, you can view your past meditation sessions. It's a record of your journey & commitment towards mindfulness.</span>
+        <div class="content" id="meditationHistory">
+            <!-- Updated Meditation History Section -->
+        </div>
+    </div>
+
+    <div class="history-section">
+        <div class="collapsible" onclick="toggleCollapsible('mandalHistory')">
+            <h3>Your Mandal History</h3>
+        </div>
+        <span class="intro">Track the progress of your mandalas here. See how far you've come on your spiritual journey.</span>
+        <div class="content" id="mandalHistory">
+            <p>Track the progress of your mandalas here. See how far you've come on your spiritual journey.</p>
+        </div>
+    </div>
+
+    <div id="timerDialog" class="hidden">
+        <div class="timer">13:00</div>
+        <button class="start" onclick="startTimer()">Start</button>
+        <button class="stop" onclick="stopTimer()">Stop</button>
+        <button class="clos" onclick="closeTimer()">Close</button>
+    </div>
+
+    <div id="toast" style="display:none;"></div>
+    <div id="intrusiveToast" style="display:none;"></div>
+
+    <div class="formatting-dialog" id="formattingDialog">
+        <button onclick="applyFormat('bold')">Bold</button>
+        <button onclick="applyFormat('italic')">Italic</button>
+        <button onclick="applyFormat('underline')">Underline</button>
+    </div>
+</div>
+
+<script>
+    let startDate;
+    let timerInterval;
+    let timerElement;
+    let minutes = 13;
+    let seconds = 0;
+    let sessionCompleted = false;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        timerElement = document.querySelector('.timer');
+
+        document.getElementById('createSession').addEventListener('click', function () {
+            document.getElementById('timerDialog').classList.remove('hidden');
+            sessionCompleted = false;
         });
 
-        function openDialog() {
-            document.getElementById("myDialog").style.display = "flex";
+        displayMeditationHistory();
+        displayMandalHistory();
+
+        const storedName = localStorage.getItem('userName');
+        if (storedName) {
+            const days = JSON.parse(localStorage.getItem('meditationHistory')).length + 1;
+            showToast(`Namaskaram ${storedName} to ${JSON.parse(localStorage.getItem('mandalProgress'))[0].name}. This is your day ${days} of meditation.`);
         }
 
-        function closeDialog() {
-            document.getElementById("myDialog").style.display = "none";
+        checkMandalCompletion();
+        updateMandalaHeaderFromLocalStorage();
+        checkLocalStorage();
+    });
+
+    function openDialog() {
+        document.getElementById("myDialog").style.display = "block";
+    }
+
+    function closeDialog() {
+        document.getElementById("myDialog").style.display = "none";
+    }
+
+    function startTimer() {
+        startDate = new Date();
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+        if (!sessionCompleted) {
+            logMeditationHistory(false);
+            sessionCompleted = true;
+        }
+    }
+
+    function closeTimer() {
+        document.getElementById('timerDialog').classList.add('hidden');
+    }
+
+    function updateTimer() {
+        seconds--;
+
+        if (seconds < 0) {
+            seconds = 59;
+            minutes--;
         }
 
-        function saveMandal() {
-            const userName = document.getElementById('userName').value;
-            const mandalName = document.getElementById('mandalName').value;
-            const startDate = new Date(document.getElementById('startDate').value);
-            const mandalDuration = document.getElementById('mandalDuration').value;
-            const endDate = new Date(startDate.getTime() + parseInt(mandalDuration) * 24 * 60 * 60 * 1000);
+        timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-            const mandal = {
-                userName,
-                name: mandalName,
-                duration: mandalDuration,
-                creationDate: startDate.toDateString(),
-                endDate: endDate.toDateString(),
-            };
-
-            let mandals = JSON.parse(localStorage.getItem('mandalProgress')) || [];
-            mandals.push(mandal);
-            localStorage.setItem('mandalProgress', JSON.stringify(mandals));
-            localStorage.setItem('username', userName);
-
-            updateHeader(mandalName);
-            checkAndDisplayExistingMandal();
-            showToast(`Mandal created successfully! It starts on ${startDate.toDateString()} and ends on ${endDate.toDateString()}.`);
-            closeDialog();
+        if (minutes === 0 && seconds === 0) {
+            clearInterval(timerInterval);
+            showToast(`Your ${getPhaseOfDay()} meditation session completed @${getCurrentDateTime()}`);
+            logMeditationHistory(true);
         }
+    }
 
-        function updateHeader(name) {
-            const header = document.querySelector('.mandal-heading h1');
-            header.textContent = `${name}`;
-        }
+    function getPhaseOfDay() {
+        const hour = new Date().getHours();
+        if (hour < 5) return 'early morning';
+        if (hour < 12) return 'morning';
+        if (hour < 18) return 'afternoon';
+        return 'evening';
+    }
 
-        function showToast(message) {
-            const toastContainer = document.getElementById('toastContainer');
-            const toastMessage = document.getElementById('toastMessage');
-            toastMessage.innerHTML = `${message} <a href="${sessionCreationUrl}" style="color: yellow;">Click here</a> to start creating meditation sessions.<span class="toast-close" onclick="hideToast()">×</span>`;
-            toastContainer.style.display = 'block';
-        }
+    function getCurrentDateTime() {
+        const now = new Date();
+        return `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+    }
 
-        function hideToast() {
-            document.getElementById('toastContainer').style.display = 'none';
-        }
+    function showToast(message) {
+        const toastElement = document.getElementById('toast');
+        toastElement.textContent = message;
+        toastElement.style.display = 'block';
+        setTimeout(() => {
+            toastElement.style.display = 'none';
+        }, 5000);
+    }
 
-        function checkAndDisplayExistingMandal() {
-            const username = localStorage.getItem('username');
-            const mandals = JSON.parse(localStorage.getItem('mandalProgress'));
+    function logMeditationHistory(completed) {
+        const currentDate = new Date();
+        const endDate = getCurrentDateTime();
+        const durationInSeconds = (currentDate - startDate) / 1000;
 
-            if (username && mandals && mandals.length > 0) {
-                const lastMandal = mandals[mandals.length - 1];
-                const startDate = new Date(lastMandal.creationDate);
-                const endDate = new Date(lastMandal.endDate);
-                const currentDate = new Date();
+        const minutes = Math.floor(durationInSeconds / 60);
+        const seconds = durationInSeconds % 60;
 
-                const daysCompleted = Math.floor((Math.min(currentDate, endDate) - startDate) / (1000 * 60 * 60 * 24));
-                const remainingDays = Math.max(0, Math.ceil((endDate - currentDate) / (1000 * 60 * 60 * 24)));
+        const sessionDetails = {
+            startDate: startDate.toLocaleString(),
+            endDate,
+            duration: `${minutes} minutes ${seconds} seconds`,
+            completed,
+            notes: ""
+        };
 
-                const existingMandalCard = document.getElementById('existingMandalCard');
-                existingMandalCard.innerHTML = `
-                    <h2>Existing Mandal Found</h2>
-                    <p>Username: ${username}</p>
-                    <p>Mandal Name: ${lastMandal.name}</p>
-                    <p>Start Date: ${startDate.toDateString()}</p>
-                    <p>End Date: ${endDate.toDateString()}</p>
-                    <p>Days Completed: ${daysCompleted}</p>
-                    <p>${remainingDays > 0 ? `Remaining Days: ${remainingDays}` : "Mandal Completed. You can create a new one."}</p>
-                    <a href="${sessionCreationUrl}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" target="_blank">Start Creating Meditation Sessions in ${lastMandal.name}</a>
+        const meditationHistory = JSON.parse(localStorage.getItem('meditationHistory')) || [];
+        meditationHistory.push(sessionDetails);
+        localStorage.setItem('meditationHistory', JSON.stringify(meditationHistory));
+        displayMeditationHistory();
+    }
+
+    function displayMeditationHistory() {
+        const history = JSON.parse(localStorage.getItem('meditationHistory')) || [];
+        const historyContainer = document.getElementById('meditationHistory');
+        historyContainer.innerHTML = '';
+        let currentMandal = JSON.parse(localStorage.getItem('mandalProgress'))[0].name;
+        let day = 1;
+        history.forEach((entry, index) => {
+            const isCurrentMandal = entry.name === currentMandal;
+            const entryElement = document.createElement('div');
+            entryElement.classList.add('medHlog');
+            if (isCurrentMandal) {
+                entryElement.innerHTML = `
+                    <h3>Day ${day} - ${entry.startDate.split(',')[0]}</h3>
+                    <div class="session-item">Morning: ${entry.startDate.split(',')[1]} - ${entry.endDate.split(',')[1]}</div>
+                    <div class="session-item">Completed: ${entry.completed ? 'Yes' : 'No'}</div>
+                    <span class="session-notes" contenteditable="true" data-index="${index}" placeholder="Your session notes here">${entry.notes || "Your session notes here"}</span>
+                    <div class="ellipsis" onclick="openFormattingDialog(event)">...</div>
                 `;
-                existingMandalCard.style.display = 'block';
-                updateHeader(lastMandal.name);
             } else {
-                showToast("No existing Mandal found. Please create one by clicking Mandal creation button.");
+                entryElement.innerHTML = `
+                    <h3>Day ${day} - ${entry.startDate.split(',')[0]}</h3>
+                    <div class="session-item">Morning: ${entry.startDate.split(',')[1]} - ${entry.endDate.split(',')[1]}</div>
+                    <div class="session-item">Completed: ${entry.completed ? 'Yes' : 'No'}</div>
+                    <span class="session-notes collapsed" data-index="${index}" placeholder="Your session notes here">${entry.notes || "Your session notes here"}</span>
+                    <div class="ellipsis" onclick="openFormattingDialog(event)">...</div>
+                `;
             }
+            historyContainer.appendChild(entryElement);
+            day++;
+        });
+
+        // Add event listeners for session notes
+        const sessionNotes = document.querySelectorAll(".session-notes");
+        sessionNotes.forEach(note => {
+            note.addEventListener("focus", openFormattingDialog);
+            note.addEventListener("blur", saveSessionNotes);
+        });
+    }
+
+    function displayMandalHistory() {
+        const history = JSON.parse(localStorage.getItem('mandalProgress')) || [];
+        const historyContainer = document.getElementById('mandalHistory');
+        historyContainer.innerHTML = '';
+        history.forEach((entry, index) => {
+            const entryElement = document.createElement('div');
+            entryElement.classList.add('medHlog');
+            entryElement.innerHTML = `
+                <h3>Mandal ${index + 1}</h3>
+                <div>Name: ${entry.name}</div>
+                <div>Duration: ${entry.duration} days</div>
+                <div>Start Date: ${entry.creationDate}</div>
+                <div>End Date: ${entry.endDate}</div>
+                <div>Completed: ${entry.completed ? 'Yes' : 'Ongoing'}</div>
+            `;
+            historyContainer.appendChild(entryElement);
+        });
+    }
+
+    function toggleCollapsible(id) {
+        const content = document.getElementById(id);
+        if (content.style.display === 'none' || content.style.display === '') {
+            content.style.display = 'block';
+        } else {
+            content.style.display = 'none';
         }
-    </script>
+    }
+
+    function checkMandalCompletion() {
+        const history = JSON.parse(localStorage.getItem('mandalProgress')) || [];
+
+        if (history.length === 0) {
+            return;
+        }
+
+        const currentDate = new Date();
+        const firstEntry = history[0];
+        const creationDate = new Date(firstEntry.creationDate);
+        const daysSinceStart = Math.floor((currentDate - creationDate) / (1000 * 60 * 60 * 24));
+
+        if (daysSinceStart >= firstEntry.duration) {
+            firstEntry.completed = true;
+            localStorage.setItem('mandalProgress', JSON.stringify(history));
+
+            showToast(`Congratulations! You have completed the Mandal: ${firstEntry.name}. Click here to create a new Mandal.`);
+            showIntrusiveToast();
+        }
+    }
+
+    function updateMandalaHeaderFromLocalStorage() {
+        const history = JSON.parse(localStorage.getItem('mandalProgress')) || [];
+
+        if (history.length === 0) {
+            return;
+        }
+
+        const firstEntry = history[0];
+        const mandalaName = firstEntry.name;
+        const creationDate = new Date(firstEntry.creationDate);
+        const currentDate = new Date();
+        const daysSinceStart = Math.floor((currentDate - creationDate) / (1000 * 60 * 60 * 24)) + 1;
+
+        const mandalaHeaderElement = document.getElementById('mandalOngoing');
+
+        if (mandalaHeaderElement) {
+            mandalaHeaderElement.textContent = `${mandalaName} - day ${daysSinceStart} in`;
+            updateProgressBar(daysSinceStart, firstEntry.duration);
+        } else {
+            console.error('Element with ID "mandalOngoing" not found.');
+        }
+
+        const mandalDetailsElement = document.getElementById('mandalDetails');
+        if (mandalDetailsElement) {
+            mandalDetailsElement.innerHTML = `
+                Start Date: ${firstEntry.creationDate}<br>
+                End Date: ${firstEntry.endDate}<br>
+                Sessions Completed: ${daysSinceStart} / ${firstEntry.duration}
+            `;
+        } else {
+            console.error('Element with ID "mandalDetails" not found.');
+        }
+    }
+
+    function updateProgressBar(currentDay, totalDays) {
+        const progressBar = document.getElementById('progressBar');
+        const progressPercentage = (currentDay / totalDays) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+    }
+
+    function showIntrusiveToast() {
+        const toastElement = document.getElementById('intrusiveToast');
+        toastElement.classList.remove('hidden');
+    }
+
+    function hideIntrusiveToast() {
+        const toastElement = document.getElementById('intrusiveToast');
+        toastElement.classList.add('hidden');
+    }
+
+    function saveMandal() {
+        const mandalName = document.getElementById('mandalName').value;
+        const mandalDuration = document.getElementById('mandalDuration').value;
+        const startDate = document.getElementById('startDate').value || getNextDay();
+
+        if (!mandalName || !mandalDuration || !startDate) {
+            showToast('All fields are required.');
+            return;
+        }
+
+        const sessionCount = mandalDuration === '48' ? 96 : 90;
+
+        const mandalDetails = {
+            name: mandalName,
+            duration: parseInt(mandalDuration),
+            creationDate: startDate,
+            sessionCount,
+            endDate: calculateEndDate(startDate, parseInt(mandalDuration)),
+            completed: false
+        };
+
+        localStorage.setItem('mandalProgress', JSON.stringify([mandalDetails]));
+
+        showToast(`Mandal created with ${sessionCount} sessions.`);
+        hideIntrusiveToast();
+        updateMandalaHeaderFromLocalStorage();
+    }
+
+    function getNextDay() {
+        const today = new Date();
+        const nextDay = new Date(today);
+        nextDay.setDate(today.getDate() + 1);
+        return nextDay.toISOString().split('T')[0];
+    }
+
+    function calculateEndDate(startDate, duration) {
+        const startDateObj = new Date(startDate);
+        startDateObj.setDate(startDateObj.getDate() + duration - 1);
+        return startDateObj.toISOString().split('T')[0];
+    }
+
+    function checkLocalStorage() {
+        const userName = localStorage.getItem('userName');
+        const mandalProgress = JSON.parse(localStorage.getItem('mandalProgress'));
+
+        if (!userName || !mandalProgress || mandalProgress[0].completed) {
+            showIntrusiveToast();
+        } else {
+            showToast(`Namaskaram, ${userName}!`);
+        }
+    }
+
+    function saveSessionNotes(event) {
+        const index = event.target.getAttribute('data-index');
+        const notes = event.target.textContent;
+        const meditationHistory = JSON.parse(localStorage.getItem('meditationHistory')) || [];
+        if (meditationHistory[index]) {
+            meditationHistory[index].notes = notes;
+            localStorage.setItem('meditationHistory', JSON.stringify(meditationHistory));
+        }
+    }
+
+    function openFormattingDialog(event) {
+        const dialog = document.getElementById('formattingDialog');
+        const rect = event.target.getBoundingClientRect();
+        dialog.style.top = `${rect.bottom + window.scrollY}px`;
+        dialog.style.left = `${rect.left + window.scrollX}px`;
+        dialog.style.display = 'block';
+        dialog.dataset.index = event.target.getAttribute('data-index');
+    }
+
+    function applyFormat(format) {
+        const dialog = document.getElementById('formattingDialog');
+        const index = dialog.dataset.index;
+        const element = document.querySelector(`.session-notes[data-index="${index}"]`);
+
+        if (element) {
+            document.execCommand(format, false, null);
+            saveSessionNotes({ target: element });
+        }
+    }
+
+    document.addEventListener('click', function (event) {
+        const dialog = document.getElementById('formattingDialog');
+        if (!dialog.contains(event.target) && !event.target.classList.contains('ellipsis')) {
+            dialog.style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>
